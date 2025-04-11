@@ -100,7 +100,7 @@ async function processFile(filepath: string): Promise<void> {
         const lightmodePdfConvert = (async () => {
                 const browser = await puppeteer.launch();
                 const page = await browser.newPage();
-                await page.setContent(fs.readFileSync(lightmodeHtml, 'utf8'));
+                await page.goto("file://" + lightmodeHtml);
                 const height = await page.evaluate(() => document.documentElement.offsetHeight);
                 await page.pdf({
                     path: lightmodePdf,
@@ -118,7 +118,7 @@ async function processFile(filepath: string): Promise<void> {
                 let loaded: boolean = false
                 do {
                     try {
-                        await page.setContent(fs.readFileSync(darkmodeHtml, 'utf8'));
+                        await page.goto("file://" + darkmodeHtml);
                         loaded = true;
                     } catch (err) {
                         console.log("Encountered an error - retrying: ", err)
