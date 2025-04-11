@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8"></meta>
+    <style>
+        @font-face {
+            font-family: math-font;
+            src: url(https://fred-wang.github.io/MathFonts/TeXGyreSchola/texgyreschola-math.woff2);
+        }
+        math {
+            font-family: math-font;
+        }
+        body{
+            font-family:Calibri;
+            max-width: 50em;
+            margin: auto;
+            padding: 10px;
+            background-color: #1c1c1c;
+            color: white;
+        }
+        table{
+            margin: 1em 0 1em 0;
+        }
+        table,tr,th,td{
+            border: 1px solid #474747;
+            border-collapse: collapse;
+            text-align: left;
+            vertical-align: top;
+        }
+        img{
+            max-width: 100%;
+        }
+        a {
+            color: #287cff
+        }
+    </style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head><p>// Впереди - внезапно лекция на очень низовом уровне, погружаемся
+обратно в транзисторы, отсечки 0/1, энергопотребление и тд. Хз будет ли
+так постоянно но крепись</p>
+<h2
+id="логические-уровни-уровни-напряжений-согласование-уровней">Логические
+уровни, уровни напряжений, согласование уровней</h2>
+<h4 id="двоичная-логика">Двоичная логика</h4>
+<p>Почему все ЭВМ нынче на цифре? Так тупо проще<br />
+Логический уровень - одно из конечных состояний, в которых может
+находиться цифровой сигнал<br />
+Они обычно задаются разностью потенциалов сигнал - земля, пускай и
+бывают другие стандарты (по типу дифференциальных передач, токовых
+петель и др.)</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Логический уровень</th>
+<th style="text-align: center;">Активный высокий (active-high)</th>
+<th style="text-align: center;">Активный низкий (active-low)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">Лог. высокий</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Лог. низкий</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">^ как пример - на AVR LED включаются по
+фронту 0. Как второй пример - нажатие на клавитуре засчитывается по
+0</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+<h4 id="уровни-напряжения">Уровни напряжения</h4>
+<p>Логическим уровням соответствуют уровни напряжения. Простое
+приближение:</p>
+<ul>
+<li>Меньше порога - 0</li>
+<li>Больше порога - 1</li>
+</ul>
+<p>Появляется проблема - близко к порогу может быть много переключений
+(ихих дребезг схемотехника 5 семестр), то есть по факту всё
+сложнее<br />
+Дальше:</p>
+<ul>
+<li>TTL</li>
+<li>CMOS</li>
+<li>LVCMOS - Low Voltage CMOP</li>
+</ul>
+<h4 id="ttl">TTL</h4>
+<p>TTL - Transistor-Transistor Logic - одна из первых технологий
+цифровой логики. Основана на биполярных транзисторах<br />
+<img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250319104331%20darkmode.png"
+alt="Pasted image 20250319104331%20darkmode.png" /><br />
+^ TTL-инвертор И-НЕ<br />
+<img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250319104440%20darkmode.png"
+alt="Pasted image 20250319104440%20darkmode.png" /><br />
+^ То же самое, эквивалентная схема<br />
+Если на выходной транзистор Q3 открывает, то на выходе 0. Если он
+закрыт, то неопределённое состояние<br />
+<img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250319105503%20darkmode.png"
+alt="Pasted image 20250319105503%20darkmode.png" /><br />
+^ Схема с выходом totem-pole<br />
+Последняя схема в отличие от двух схем выше:</p>
+<ul>
+<li>Имеет 2 инвертора, соответственно ясен хер сложнее</li>
+<li>На выходе значение 1 формируется принудительно, соответственно на
+выходе всегда либо 0 либо 1, неопределённых состояний не бывает<br />
+Энергопотребление:</li>
+<li>Статическое:
+<ul>
+<li>TTL потребляет ток даже в статическом состоянии когда входы не
+меняются. Почему? Потому что биполярные транзисторы требует энергии даже
+в простое<br />
+Стандартный TTL-вентиль потребляет 1-2 мА на каждый вход</li>
+</ul></li>
+<li>Динамическое:
+<ul>
+<li>При переключении TTL потребляет больше тока из-за перехоных
+процессов транзисторов, что особенно заметно на высоких частотах</li>
+</ul></li>
+</ul>
+<p>Быстродействие:</p>
+<ul>
+<li>Задержка распространения - около 10-30нс из-за биполярных
+транзисторов</li>
+<li>Скорость переключения - TTL быстрее ранних CMOS (по типу 4000
+серий), но уступает современным (по типу 74HC серии)</li>
+</ul>
+<h4 id="cmos">CMOS</h4>
+<p>CMOS (Complementary Metal-Oxide-Semiconductor) - основана на
+использовании комплементарных пар MOSFET-транзисторов<br />
+<img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250319110232%20darkmode.png"
+alt="Pasted image 20250319110232%20darkmode.png" /><br />
+^ Инвертор (NOT-вентиль). По аналогии с totem-pole TTL, это в CMOS
+называется push-pull<br />
+<img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250319110531%20darkmode.png"
+alt="Pasted image 20250319110531%20darkmode.png" /><br />
+^ NAND Gate так для общего развития<br />
+"Если Вам хочется всё по ГОСТу - откройте ГОСТ"<br />
+©️ Хохлов 2025<br />
+<img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250319111127%20darkmode.png"
+alt="Pasted image 20250319111127%20darkmode.png" /><br />
+^ push-pull vs открытый сток<br />
+Преимущество CMOS - в статическом режиме почти не жрёт энергию, ибо один
+из транзивторов всегда закрыт</p>
+<table>
+<thead>
+<tr class="header">
+<th>Параметр</th>
+<th>CMOS</th>
+<th>TTL</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Статическое потребление</td>
+<td>около 0 (только утечка)</td>
+<td>1-2 мА на вентиль</td>
+</tr>
+<tr class="even">
+<td>Динамическое потребление</td>
+<td>Зависит от частоты
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><mi>C</mi><mo>*</mo><msup><mi>V</mi><mn>2</mn></msup><mo>*</mo><mi>f</mi></mrow><annotation encoding="application/x-tex">P=C*V^2*f</annotation></semantics></math></td>
+<td>Зависит от тока переключения</td>
+</tr>
+<tr class="odd">
+<td>Быстродействие</td>
+<td>Высокое (в современных сериях)</td>
+<td>Среднее</td>
+</tr>
+<tr class="even">
+<td>Уровни напряжения</td>
+<td>Широкий диапазон (1.8-5 В)</td>
+<td>0-0.8 В (0), 2-5 В (1)</td>
+</tr>
+<tr class="odd">
+<td>Помехоустойчивость</td>
+<td>Высокая</td>
+<td>Низкая</td>
+</tr>
+<tr class="even">
+<td>Потребление:</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>CMOS 74HC00 (лог. элемент И-НЕ) - 2.5 мкА в статике, 10 мА при 10
+МГц</li>
+<li>TTL 7400 - 10 мА в статике, 22 мА при 10 МГц</li>
+</ul>
+<p>CMOS логика почти не потребляет в статике, но при переключении
+появляются динамические потери из-за заряда/разряда ёмкости затвора
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>C</mi><mrow><mi>g</mi><mi>a</mi><mi>t</mi><mi>e</mi></mrow></msub><annotation encoding="application/x-tex">C_{gate}</annotation></semantics></math>)<br />
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mrow><mi>d</mi><mi>y</mi><mi>n</mi><mi>a</mi><mi>m</mi><mi>i</mi><mi>c</mi></mrow></msub><mo>=</mo><msub><mi>C</mi><mrow><mi>g</mi><mi>a</mi><mi>t</mi><mi>e</mi></mrow></msub><mo>*</mo><msup><mi>V</mi><mn>2</mn></msup><mo>*</mo><mi>f</mi></mrow><annotation encoding="application/x-tex">P_{dynamic}=C_{gate}*V^2*f</annotation></semantics></math><br />
+Как CMOS умудряется работать на высоких частотах?</p>
+<ul>
+<li>Уменьшение ёмкости затвора:
+<ul>
+<li>Современные технологии (5-7 нм техпроцесс) минимизируют ёмкость
+завтора за счёт:
+<ul>
+<li>Уменьшения размеров транзисторов</li>
+<li>Материалов с высокой подвижностью носителей (кремний-германий
+например)</li>
+</ul></li>
+<li>Пример -
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>C</mi><mrow><mi>g</mi><mi>a</mi><mi>t</mi><mi>e</mi></mrow></msub><annotation encoding="application/x-tex">C_{gate}</annotation></semantics></math>
+техпроцесса 5нм ниже чем
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>C</mi><mrow><mi>g</mi><mi>a</mi><mi>t</mi><mi>e</mi></mrow></msub><annotation encoding="application/x-tex">C_{gate}</annotation></semantics></math>
+техпроцесса 28нм на 30%-50%</li>
+</ul></li>
+<li>Оптимизация схемотехники
+<ul>
+<li>Синхронный дизайн - тактовые сигналы синхронизируют переключение,
+минимизируя задержки</li>
+<li>Конвейеризация</li>
+<li>Дифференциальные схемы - LVDS, Current-Mode Logic для уменьшения
+влияния шумов</li>
+</ul></li>
+<li>Снижение напряжения питания
+<ul>
+<li>Применение низковольтных технологий (LVCMOS, Low-Voltage CMOS), что
+снижает V, что снижает
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>d</mi><mi>y</mi><mi>n</mi><mi>a</mi><mi>m</mi><mi>i</mi><mi>c</mi></mrow></msub><annotation encoding="application/x-tex">P_{dynamic}</annotation></semantics></math></li>
+</ul></li>
+<li>Предусилители и буферы
+<ul>
+<li>Буферные каскады ускоряют переключение, компенсируя задержки</li>
+</ul></li>
+</ul>
+<p>Примеры:</p>
+<ul>
+<li>Процессоры
+<ul>
+<li>Тактовые частоты до 5 ГГц (Intel Core i9, AMD Ryzen)</li>
+</ul></li>
+<li>Телекоммуникации
+<ul>
+<li>Чипы 5G (28-39 ГГц), SerDes (up to 112 Gb/s)</li>
+</ul></li>
+<li>Память
+<ul>
+<li>DDR5 - до 6.4 МГц, GDDR6 - до 20 МГц</li>
+</ul></li>
+</ul>
+<h4 id="lvcmos">LVCMOS</h4>
+<p>... - модификация стандартной CMOS логики со низким уровнем сигнала и
+соответственно с более низким потреблением/нагревом/вольтажом<br />
+Каким макаром низкий уровень сигнала?</p>
+<ul>
+<li>Снижение напряжения питания - уровни лог. состояний пропорциональны
+напряжению питания</li>
+<li>Использование MOSFET с малым напряжением отсечки - транзисторы
+проектируются для эффективной работы на низких напряжениях</li>
+</ul>
+<p>Плюсы:</p>
+<ul>
+<li>Энергоэффективность - см. формулу где-то выше: мощность потребления
+пропорциональна квадрату напряжения. Снижение вольтажа снижает
+энергопотребление в 2-4 раза по сравнению с 3.3 В</li>
+<li>Меньший нагрев - логично, меньше частоты/напряжение - меньше тепла.
+Упрощает тепловые расчёты</li>
+<li>Совместимость с современными технологиями - современные процы,
+память, IoT устройства все используют низковолтные технологии</li>
+<li>Высокая плотность элементов - меньшие размеры транзисторов и
+межсоединений -&gt; на чипе умещается больше элементов</li>
+</ul>
+<p>Минусы:</p>
+<ul>
+<li>Чувствительном к шумам - между логическими уровнями меньше пробел,
+что означает худшую помехозащищённость</li>
+<li>Требовательность к стабильности питания - нужны точные источники
+напряжения/фильтрации</li>
+<li>Ограниченная нагрузочная способность - низкий выходной ток требует
+буферов управления мощными нагрузками</li>
+</ul>
+<p>На следующей лекции - LVDS</p>

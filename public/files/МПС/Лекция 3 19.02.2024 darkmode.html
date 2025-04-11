@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8"></meta>
+    <style>
+        @font-face {
+            font-family: math-font;
+            src: url(https://fred-wang.github.io/MathFonts/TeXGyreSchola/texgyreschola-math.woff2);
+        }
+        math {
+            font-family: math-font;
+        }
+        body{
+            font-family:Calibri;
+            max-width: 50em;
+            margin: auto;
+            padding: 10px;
+            background-color: #1c1c1c;
+            color: white;
+        }
+        table{
+            margin: 1em 0 1em 0;
+        }
+        table,tr,th,td{
+            border: 1px solid #474747;
+            border-collapse: collapse;
+            text-align: left;
+            vertical-align: top;
+        }
+        img{
+            max-width: 100%;
+        }
+        a {
+            color: #287cff
+        }
+    </style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head><h4 id="классификация-микроконтроллеров-продолжение">Классификация
+микроконтроллеров (продолжение)</h4>
+<ul>
+<li><strong>Периферия</strong>
+<ul>
+<li>Цифровые порты в/в</li>
+<li>Таймеры (счётчики, сторожевые)</li>
+<li>Каналы обмена данными с внешними устройствами: UART, SPI, I2C, USB,
+CAN и тд</li>
+<li>Аналоговые порты и устройства работы с аналоговыми сигналами: АЦП,
+ЦАП, аналоговый компаратор</li>
+</ul></li>
+</ul>
+<h4
+id="обобщённая-схема-8-разрядного-микропроцессора-аккумуляторного-типа">Обобщённая
+схема 8-разрядного микропроцессора аккумуляторного типа</h4>
+<p><img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250219103241%20darkmode.png"
+alt="Pasted image 20250219103241%20darkmode.png" /></p>
+<h4 id="процесс-выполнения-команд">Процесс выполнения команд</h4>
+<p><img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250219103948%20darkmode.png"
+alt="Pasted image 20250219103948%20darkmode.png" /><br />
+Обощённый цикл выполнения команды (<strong>командный
+цикл</strong>)<br />
+Командный цикл включает 1 или больше <strong>машинных
+циклов</strong>:</p>
+<ul>
+<li>Выборка команды</li>
+<li>Чтение/запись в память/стек/внешнее устройство</li>
+<li>Обслуживание прерывания<br />
+Пример: сложение операнда из ОЗУ и операнда из регистра за 3 машинных
+цикла с сохранением в ОЗУ</li>
+</ul>
+<h4 id="обощённая-схема-машинного-цикла">Обощённая схема машинного
+цикла</h4>
+<p><img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250219105032%20darkmode.png"
+alt="Pasted image 20250219105032%20darkmode.png" /><br />
+Машинный цикл работает за некоторое количество <strong>машинных
+тактов</strong>:<br />
+T1 - вывод адреса на шиу адреса<br />
+T2 - проверка готовности адресуемого устройства<br />
+TW - такт ожидания<br />
+T3 - пересылка команды/данных</p>
+<h6 id="командный-цикл--машинный-цикл--машинный-такт">Командный цикл
+&gt; Машинный цикл &gt; Машинный такт</h6>
+<h4 id="структура-мк-atmega8515">Структура МК ATmega8515</h4>
+<p>Архитектура Гарвардская, регистр-регистрованя<br />
+Память программ - 8кБ Flash<br />
+Память данных - 512 Б SRAM, 512 Б EEPROM<br />
+8-разрядные порты в/в (4 шт) + один 3-разрядный нахера-то<br />
+Таймеры-счётчики</p>
+<p><img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%A1%D0%B5%D0%BC%D0%B8%D0%BD%D0%B0%D1%80%D1%8B/%D0%A1%D1%85%D0%B5%D0%BC%D0%B0%20%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D1%8B%20AVR%20darkmode.png"
+alt="Схема работы AVR%20darkmode.png" /></p>
+<h4 id="память-мк-atmega8515">Память МК ATmega8515</h4>
+<p><img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250219110657%20darkmode.png"
+alt="Pasted image 20250219110657%20darkmode.png" /></p>
+<h4 id="процессорное-ядро-avr">Процессорное ядро AVR</h4>
+<p><img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250219111454%20darkmode.png"
+alt="Pasted image 20250219111454%20darkmode.png" /><br />
+<img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250219111516%20darkmode.png"
+alt="Pasted image 20250219111516%20darkmode.png" /><br />
+<strong>X, Y, Z-регистры</strong> - вариант использования регистров
+R26-31, работают по принципу AX, BX, CX в x86 архитектуре, т.е.
+подразделяются на H и L половинки<br />
+<img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250219111614%20darkmode.png"
+alt="Pasted image 20250219111614%20darkmode.png" /></p>

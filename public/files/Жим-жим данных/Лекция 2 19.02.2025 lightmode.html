@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8"></meta>
+    <style>
+        @font-face {
+            font-family: math-font;
+            src: url(https://fred-wang.github.io/MathFonts/TeXGyreSchola/texgyreschola-math.woff2);
+        }
+        math {
+            font-family: math-font;
+        }
+        body{
+            font-family:Calibri;
+            max-width: 50em;
+            margin: auto;
+            padding: 10px;
+            background-color: white;
+        }
+        table{
+            margin: 1em 0 1em 0;
+        }
+        table,tr,th,td{
+            border: 1px solid #474747;
+            border-collapse: collapse;
+            text-align: left;
+            vertical-align: top;
+        }
+        img{
+            max-width: 100%;
+        }
+        a {
+            color: #287cff
+        }
+    </style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head><h4 id="адаптивный-алгоритм-сжатия-хаффмана">Адаптивный алгоритм сжатия
+Хаффмана</h4>
+<p>Алгоритм меняет дерево сжатия таким образом, чтобы наиболее частые
+последовательности кодировались наименьшим количесвом символов</p>
+<p>пример:<br />
+aa bbb cccc ddddd eeeeee fffffffgggggggg</p>
+<table>
+<thead>
+<tr class="header">
+<th>исходное сообщение</th>
+<th>вероятность</th>
+<th>код</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>a</td>
+<td>2/40</td>
+<td>1001</td>
+</tr>
+<tr class="even">
+<td>b</td>
+<td>3/40</td>
+<td>1000</td>
+</tr>
+<tr class="odd">
+<td>c</td>
+<td>4/40</td>
+<td>011</td>
+</tr>
+<tr class="even">
+<td>d</td>
+<td>5/40</td>
+<td>010</td>
+</tr>
+<tr class="odd">
+<td>e</td>
+<td>6/40</td>
+<td>111</td>
+</tr>
+<tr class="even">
+<td>f</td>
+<td>7/40</td>
+<td>110</td>
+</tr>
+<tr class="odd">
+<td>g</td>
+<td>8/40</td>
+<td>00</td>
+</tr>
+<tr class="even">
+<td>&lt;пробел&gt;</td>
+<td>5/40</td>
+<td>101</td>
+</tr>
+</tbody>
+</table>
+<h4 id="алгоритмы-fgk">Алгоритмы FGK</h4>
+<p>В основе - свойство наследования:<br />
+Бинарное кодовое дерево имеет свойство наследования, если каждый узел
+кроме корневого имеет наследников и если узлы могут быть перечислены в
+порядке неувеличивающихся весов для каждого узла со стороны
+наследников<br />
+Бинарный префиксный ход - код Хаффмана тогда и только тогда, когда
+кодовое дерево имеет св-во наследования<br />
+Преимущества:</p>
+<ul>
+<li>Адаптивность кода</li>
+<li>Нужен 1 проход данных при кодировании</li>
+<li>Код изменяется так, чтобы оставаться оптимальным для текущих
+оценок</li>
+</ul>
+<h4
+id="алгоритм-перестроения-кодового-дерева-в-процессе-передачи-исходных-сообщений">Алгоритм
+перестроения кодового дерева в процессе передачи исходных сообщений</h4>
+<p>Начало - корневой узел (0) - узел, в котором заключены оставшиеся
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mi>n</mi><mo>−</mo><mi>k</mi><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(n - k)</annotation></semantics></math>
+сообщения</p>
+<ul>
+<li>Для каждого переданного сообщения обе стороны увеличивают веса и
+пересчитывают кодовое дерево для обеспечения свойства наследования</li>
+<li>В некий момент времени, когда t сообщений уже передано (из которых k
+- чёткие, k &lt; n), кодовое дерево - кодовое дерево Хаффмана с
+количеством листьев k + 1, где k - для каждого из k сообщений и один для
+корневого узла (0)</li>
+<li>Если
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">t + 1</annotation></semantics></math>-ое
+сообщение - уже известное из k сообщений, алгоритм передаёт
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">t+1</annotation></semantics></math>-ый
+текущий код, увеличивает соответствующий счётчик и пересчитывает
+дерево</li>
+</ul>

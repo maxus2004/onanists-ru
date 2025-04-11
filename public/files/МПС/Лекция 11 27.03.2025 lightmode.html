@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8"></meta>
+    <style>
+        @font-face {
+            font-family: math-font;
+            src: url(https://fred-wang.github.io/MathFonts/TeXGyreSchola/texgyreschola-math.woff2);
+        }
+        math {
+            font-family: math-font;
+        }
+        body{
+            font-family:Calibri;
+            max-width: 50em;
+            margin: auto;
+            padding: 10px;
+            background-color: white;
+        }
+        table{
+            margin: 1em 0 1em 0;
+        }
+        table,tr,th,td{
+            border: 1px solid #474747;
+            border-collapse: collapse;
+            text-align: left;
+            vertical-align: top;
+        }
+        img{
+            max-width: 100%;
+        }
+        a {
+            color: #287cff
+        }
+    </style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head><p>Хохлов умоляет ходить на лекции ибо подробные материалы - прикольно,
+но понимать тоже нихуёво было бы</p>
+<h4 id="временные-диаграммы-lvds">Временные диаграммы LVDS</h4>
+<p><img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250327115505.png"
+alt="Pasted image 20250327115505.png" /><br />
+^ Сигналы LVDS (односторонние и дифференциальные)<br />
+<img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250327115850.png"
+alt="Pasted image 20250327115850.png" /><br />
+^ Синфазное напряжение</p>
+<h4 id="реализация-выходов-на-мк-avr">Реализация выходов на МК AVR</h4>
+<pre><code>// push-pull
+DDRB |= (1 &lt;&lt; PB0)
+PORTB &amp;= ~(1 &lt;&lt; PB0) // 0
+PORTB |= (1 &lt;&lt; PB0) //1</code></pre>
+<pre><code>// open-drain emulation
+#include &lt;avr/io.h&gt;
+
+// Set pin as open-drain
+#define OPEN_DRAIN_SET_LOW(pin) \
+    do { DDRB |= (1 &lt;&lt; pin); PORTB &amp;= ~(1 &lt;&lt; pin); } \
+    while(0)
+#define OPEN_DRAIN_SET_HIGH(pin) \
+    do { DDRB &amp;= ~(1 &lt;&lt; pin); PORTB |= (1 &lt;&lt; pin); } \
+    while(0)
+
+int main(void) {
+    OPEN_DRAIN_SET_HIGH(0);
+    OPEN_DRAIN_SET_LOW(0);
+    return 0;
+}</code></pre>
+<p>Приколюха про код выше:<br />
+<strong>Q</strong>: Почему do while(0) в define а не просто код, взятый
+в {}?<br />
+<strong>A</strong>: Кривой синтаксис define + приколы с препроцессором
+(он уберёт цикл моментально), так что есть общее соглашение о том, что
+многокомандные макросы обёртываются в do while(0)<br />
+<strong>Q</strong>: Почему не функция а макрос?<br />
+<strong>A</strong>: Экономия тактов. Вызов функции требует всего, что
+связано с вызовом функции, но макрос просто подставит код и похер. В C++
+есть директива inline, которая помогла бы функцию сразу вставить в код,
+но:</p>
+<ul>
+<li>В C её нет (только в последних версиях с которыми мы не работаем
+сейчас лмао)</li>
+<li>В самих плюсах она иногда криво работает 🙃</li>
+</ul>
+<h4 id="реализация-выходов-на-мк-stm32">Реализация выходов на МК
+STM32</h4>
+<pre><code>// push-pull
+void GPIO_Init(void) {
+    // Enable GPIOA clicking
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitStruct.Pin = GPIO_PIN_5;
+    // Push-Pull
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(GPIOA, &amp;GPIO_InitStruct);
+}
+
+// Usage
+// Enable
+HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+// Disable
+HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);</code></pre>
+<p><strong>Q</strong>: По кой хер нужен HAL?<br />
+<strong>A</strong>: Обратная совместимость. Всегда может что-то
+незнаительно поменяться по типу используемых регистров или такой херни.
+В статично написанном коде всё ломанётся нахуй, но при наличии HAL может
+даже не понадобится что-либо делать при переносе Legacy кода на новые
+МК</p>
+<pre><code>// open-drain
+void GPIO_Init(void) {
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitStruct.Pin = GPIO_PIN_6;
+    // Output Open Drain Mode
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(GPIOB, &amp;GPIO_InitStruct);
+}
+// OD
+HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);
+// 0
+HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);</code></pre>
+<pre><code>// tri-state
+// Logical 1
+HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+// Logical 0
+HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+// Z-state
+HAL_GPIO_DeInit(GPIOA, GPIO_PIN_5);</code></pre>
+<h4 id="реализация-выходов-на-мк-esp32">Реализация выходов на МК
+ESP32</h4>
+<pre><code>// push-pull
+#include &quot;driver/gpio.h&quot;
+
+void app_main() {
+    gpio_config_t io_conf = {
+        .pin_bit_mask = (1ULL &lt;&lt; GPIO_NUM_2),
+        .mode = GPIO_MODE_OUTPUT,
+        .pull_up_en = GPIO_PULLUP_DISABLE,
+        .pull_down_en = GPIO_PULLDOWN_DISABLE,
+        .intr_type = GPIO_INTR_DISABLE
+    };
+    gpio_config(&amp;io_conf);
+    
+    gpio_set_level(GPIO_NUM_2, 1); // high level
+    gpio_set_level(GPIO_NUM_2, 0); // low level
+}</code></pre>
+<pre><code>// open-drain
+#include &quot;driver/gpio.h&quot;
+
+void app_main() {
+    gpio_config_t io_conf = {
+        .pin_bit_mask = (1ULL &lt;&lt; GPIO_NUM_2),
+        .mode = GPIO_MODE_OUTPUT_OD,
+        .pull_up_en = GPIO_PULLUP_ENABLE,
+        .pull_down_en = GPIO_PULLDOWN_DISABLE,
+        .intr_type = GPIO_INTR_DISABLE
+    };
+    gpio_config(&amp;io_conf)
+    
+    gpio_set_level(GPIO_NUM_2, 1); // OD
+    gpio_set_level(GPIO_NUM_2, 0); // low level
+}</code></pre>
+<h4 id="входы-gpio-мк">Входы GPIO МК</h4>
+<ul>
+<li>Без подтяжки</li>
+<li>С внутренне подтяжкой к питанию</li>
+<li>С внутренней подтяжкой к земле</li>
+</ul>
+<h5 id="реализация-входа-с-подтяжкой-на-мк-avr">Реализация входа с
+подтяжкой на МК AVR</h5>
+<pre><code>DDRB &amp;= ~(1 &lt;&lt; PB0);
+PORTB |= (1 &lt;&lt; PB0);
+if (PINB &amp; (1 &lt;&lt; PINB0)) {
+    ...
+}</code></pre>
+<h5 id="реализация-входа-с-подтяжкой-на-мк-esp32">Реализация входа с
+подтяжкой на МК ESP32</h5>
+<pre><code>gpio_config_t io_conf = {
+    .pin_bit_mask = (1ULL &lt;&lt; GPIO_NUM_5),
+    .mode = GPIO_MODE_INPUT,
+    .pull_up_en = GPIO_PULLUP_ENABLE,
+    .pull_down_en = GPIO_PULLDOWN_DISABLE,
+    .intr_type = GPIO_INTR_DISABLE
+};
+gpio_config(&amp;io_conf);
+
+if (!gpio_get_level(GPIO_NUM_5)) {
+    ...
+}</code></pre>
+<h4 id="схема-порта-мк-avr-и-альтернативные-функции">Схема порта МК AVR
+и альтернативные функции</h4>
+<p><a
+href="https://www.microchip.com/en-us/product/atmega328p">https://www.microchip.com/en-us/product/atmega328p</a>
+- I/O порты - секция 13<br />
+<a
+href="https://www.arxterra.com/8-atmega-gpio/">https://www.arxterra.com/8-atmega-gpio/</a>
+- #8: ATmega GPIO - Arxterra<br />
+<a
+href="https://microsin.net/programming/avr/gpio-and-alternate-port-functions.html">https://microsin.net/programming/avr/gpio-and-alternate-port-functions.html</a>
+- GPIO и альт функции порта AVR<br />
+RM0090 глава 6<br />
+AN4899 раздел 4<br />
+<a
+href="https://we.easyelectronics.ru/STM32/prakticheskiy-kurs-stm32-urok-1---gpio-porty-vvoda-vyvoda.html">https://we.easyelectronics.ru/STM32/prakticheskiy-kurs-stm32-urok-1---gpio-porty-vvoda-vyvoda.html</a>
+- кусок практического курса STM32<br />
+ESP32 Technical Reference Manual Version 5.3 раздел 4<br />
+<a
+href="https://microsin.net/programming/arm/esp32-pinout-reference.html">https://microsin.net/programming/arm/esp32-pinout-reference.html</a>
+- справочник по выводам ESP32</p>

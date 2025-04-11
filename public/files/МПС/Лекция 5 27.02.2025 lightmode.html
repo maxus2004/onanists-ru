@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8"></meta>
+    <style>
+        @font-face {
+            font-family: math-font;
+            src: url(https://fred-wang.github.io/MathFonts/TeXGyreSchola/texgyreschola-math.woff2);
+        }
+        math {
+            font-family: math-font;
+        }
+        body{
+            font-family:Calibri;
+            max-width: 50em;
+            margin: auto;
+            padding: 10px;
+            background-color: white;
+        }
+        table{
+            margin: 1em 0 1em 0;
+        }
+        table,tr,th,td{
+            border: 1px solid #474747;
+            border-collapse: collapse;
+            text-align: left;
+            vertical-align: top;
+        }
+        img{
+            max-width: 100%;
+        }
+        a {
+            color: #287cff
+        }
+    </style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head><h4 id="система-команд-atmega8515">Система команд ATmega8515</h4>
+<ul>
+<li><strong>Пересылки</strong>
+<ul>
+<li>Регистр-память - LD, ST, LPM, SPM</li>
+<li>Регистр-регистр - MOV, IN, OUT<br />
+<img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/IMG_20250227_124724.jpg"
+alt="IMG_20250227_124724.jpg" /></li>
+</ul></li>
+<li><strong>Арифметические/логические операции</strong>
+<ul>
+<li>Сложение, вычитание - ADD, ADDC, SUB, SUBC</li>
+<li>Умножение - MUL, MULS, etc</li>
+<li>ДЕЛЕНИЯ НЕТ, только внешние реалищации</li>
+<li>Побитовые и, или, xor - AND, OR, XOR</li>
+<li>Инкременты/декременты - INC, DEC</li>
+</ul></li>
+<li><strong>Передача управления</strong>
+<ul>
+<li>Безусловные переходы - JMP, RJMP, IJMP, CALL, RCALL<a href="#fn1"
+class="footnote-ref" id="fnref1"
+role="doc-noteref"><sup>1</sup></a></li>
+<li>Условные переходы
+<ul>
+<li>Проверка слова состояния - BRNE, BRTC, etc</li>
+<li>Пропуск следующей команды по условию - SBIC, SBRC, etc</li>
+</ul></li>
+</ul></li>
+<li><strong>Работа с битами</strong>
+<ul>
+<li>Логический/арифметический/циклический сдвиги - LSR, ASR, ROR,
+etc</li>
+<li>Установка битов регистров/флагов - SBI, CBI, SEC, CLC, etc</li>
+</ul></li>
+<li><strong>Управление МК</strong> - NOP, SLEEP, WDR<a href="#fn2"
+class="footnote-ref" id="fnref2"
+role="doc-noteref"><sup>2</sup></a></li>
+</ul>
+<h4 id="способы-адресации-операндов">Способы адресации операндов</h4>
+<ul>
+<li><p>Непосредственная - константа в команде</p>
+<pre><code>ldi r16, 255</code></pre></li>
+<li><p>Прямая регистровая - операнд в регистре, указан в команде</p>
+<pre><code>mov r1, r0</code></pre>
+<p><img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250227124640.png"
+alt="Pasted image 20250227124640.png" /></p></li>
+<li><p>Прямая - операнд в памяти, в команде указан адрес</p>
+<pre><code>lds, r1, $025F</code></pre>
+<p><img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250227124655.png"
+alt="Pasted image 20250227124655.png" /></p></li>
+<li><p>Косвенная - операнд в памяти данных, адрес в регистрах X-Z</p>
+<pre><code>st X, r16</code></pre>
+<p><img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250227124923.png"
+alt="Pasted image 20250227124923.png" /></p></li>
+<li><p>Косвенная с постинкрементом - операнд в памяти данных, адрес в
+регистрах X-Z, адрес в X-Z инкреметнируется после операции</p>
+<pre><code>st X+, r16</code></pre>
+<p><img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250227125420.png"
+alt="Pasted image 20250227125420.png" /></p></li>
+<li><p>Косвенная с преддекрементом - операнд в памяти данных, адрес в
+регистрах X-Z, декремент перед операцией</p>
+<pre><code>st -X, r16</code></pre>
+<p><img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250227125307.png"
+alt="Pasted image 20250227125307.png" /></p></li>
+<li><p>Косвенная со смещением - операнд в памяти данных, адрес
+получается из значения Y/Z + смещение из команды</p>
+<pre><code>std Z+12, r16</code></pre>
+<p><img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250227125643.png"
+alt="Pasted image 20250227125643.png" /></p></li>
+<li><p>Константная адресация памяти программ - адрес байта памяти в
+регистре Z</p>
+<pre><code>lpm</code></pre>
+<p><img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250227125704.png"
+alt="Pasted image 20250227125704.png" /></p></li>
+<li><p>Прямая адресация памяти программ - адрес ячейки памяти программ
+указан в команде</p>
+<pre><code>jmp LOOP
+call DELAY</code></pre>
+<p><img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250227125728.png"
+alt="Pasted image 20250227125728.png" /></p></li>
+<li><p>Относительная адресация памяти программ - адрес ячейки получается
+через сумму содержимого PC и смещения из команды</p>
+<pre><code>rjmp LOOP
+rcall DELAY</code></pre>
+<p><img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250227125739.png"
+alt="Pasted image 20250227125739.png" /></p></li>
+</ul>
+<h4 id="прерывания">Прерывания</h4>
+<p><strong>Прерывание</strong> - передача управления подпрограмме
+(обработчику прерывания) при поступлении от некоторого устройства
+сигнала, требующего немедленной обработки<br />
+<strong>По расположению устроства</strong>, посылающего прерывание:</p>
+<ul>
+<li>Внутренние - внутреннее устройство МК: таймер, компаратор</li>
+<li>Внешние - устройства вне МК: кнопки, датчики, что угодно ещё<br />
+<strong>Идентификация источника</strong> прерывания:</li>
+<li>Программная - обработчик в процессе осознаёт кто отправил
+прерывание</li>
+<li>Векторная - каждому источнику - отдельный вектор прерывания <a
+href="#fn3" class="footnote-ref" id="fnref3"
+role="doc-noteref"><sup>3</sup></a>и собственно свой обработчик<br />
+<strong>Таблица векторов прерываний AVR</strong> - в начале Flash
+памяти</li>
+</ul>
+<p><img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250227130636.png"
+alt="Pasted image 20250227130636.png" /></p>
+<section id="footnotes" class="footnotes footnotes-end-of-document"
+role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1"><p>Микроприкол - отличие JMP от RJMP:<br />
+JMP - Jump - умеет прыгать внутри всей области адресации программы (~4
+миллиона слов) и доступна не на всех AVR.<br />
+RJMP - Relative Jump - прыгает относительно нынешней инструкции в
+пределах 4 тысяч слов и, судя по всему, доступен везде (адреса в
+пределах PC - 2K + 1 -- PC + 2K слов)<br />
+C CALL и RCALL та же ебень что и с JMP и RJMP<br />
+Макроприкол - IJMP - Indirect Jump - прыжок по адресу, лежащему в
+регистре Z<a href="#fnref1" class="footnote-back"
+role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>NOP - буквально нихера не делать (No OPeration)<br />
+SLEEP - очевидно - прождать чутка<br />
+WDR - ресет сторожевого таймера (WatchDog timer Reset)<a href="#fnref2"
+class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>Вектор прерывания - адрес обработчика<a href="#fnref3"
+class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>

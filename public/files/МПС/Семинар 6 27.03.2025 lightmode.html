@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8"></meta>
+    <style>
+        @font-face {
+            font-family: math-font;
+            src: url(https://fred-wang.github.io/MathFonts/TeXGyreSchola/texgyreschola-math.woff2);
+        }
+        math {
+            font-family: math-font;
+        }
+        body{
+            font-family:Calibri;
+            max-width: 50em;
+            margin: auto;
+            padding: 10px;
+            background-color: white;
+        }
+        table{
+            margin: 1em 0 1em 0;
+        }
+        table,tr,th,td{
+            border: 1px solid #474747;
+            border-collapse: collapse;
+            text-align: left;
+            vertical-align: top;
+        }
+        img{
+            max-width: 100%;
+        }
+        a {
+            color: #287cff
+        }
+    </style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head><p>Разбираем 4 лабу<br />
+Даташит к 8255 V<br />
+<a
+href="https://e-learning.bmstu.ru/iu6/pluginfile.php/23148/mod_resource/content/1/82c55a.pdf">https://e-learning.bmstu.ru/iu6/pluginfile.php/23148/mod_resource/content/1/82c55a.pdf</a></p>
+<ul>
+<li>Открыть сэмпловый проект в Proteus: Project -&gt; Open Sample
+Project -&gt; Поиск по "8255" -&gt; Выбираем единственный найденный
+проект -&gt; Чуть ниже жмём "I/O Expander" -&gt; Открываем проект
+лмао</li>
+<li>Между U2 и U1 идут два провода, соединяющие Q0 &amp; Q1 с A0 &amp;
+A1 соответственно. Их надо заменить на шину (в менюшках слева Buses
+mode)</li>
+<li>Накинуть названия на все шину и провода от Q0/Q1 (правая кнопка
+-&gt; Place Wire Label)</li>
+<li>Накинуть проберы напряжения на все шины</li>
+<li>Добавить Digital Analysis (вкладка Graph Mode)</li>
+<li>Дальше мы зажали все кнопки кроме 2-3 снизу и запустили симуляцию. В
+куче мест по хорошему должно быть число 60. Дальше гигадолгие разборки
+какого собственно хера всё работает)))<br />
+<img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%A1%D0%B5%D0%BC%D0%B8%D0%BD%D0%B0%D1%80%D1%8B/Pasted%20image%2020250327112527.png"
+alt="Pasted image 20250327112527.png" /><br />
+^ Итоговая схема с нажатыми кнопками<br />
+<img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%A1%D0%B5%D0%BC%D0%B8%D0%BD%D0%B0%D1%80%D1%8B/Pasted%20image%2020250327112626.png"
+alt="Pasted image 20250327112626.png" /><br />
+^ (Если разглядишь) Временная диаграмма симуляции</li>
+</ul>

@@ -1,0 +1,87 @@
+<h4 id="латентность-при-обращении-к-подсистеме-памяти">Латентность при
+обращении к подсистеме памяти</h4>
+<table>
+<thead>
+<tr class="header">
+<th>Тип обращения к памяти</th>
+<th>Объём памяти, байт</th>
+<th>Латентность, такты</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Регистры процессора</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>6</mn></msup><mo>−</mo><msup><mn>2</mn><mn>10</mn></msup></mrow><annotation encoding="application/x-tex">2^{6}-2^{10}</annotation></semantics></math></td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td>Кэш 1 уровня</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>14</mn></msup><mo>−</mo><msup><mn>2</mn><mn>16</mn></msup></mrow><annotation encoding="application/x-tex">2^{14}-2^{16}</annotation></semantics></math></td>
+<td>2-4</td>
+</tr>
+<tr class="odd">
+<td>Кэш 2 уровня</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>15</mn></msup><mo>−</mo><msup><mn>2</mn><mn>22</mn></msup></mrow><annotation encoding="application/x-tex">2^{15}-2^{22}</annotation></semantics></math></td>
+<td>10-12</td>
+</tr>
+<tr class="even">
+<td>Кэш 3 уровня</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>21</mn></msup><mo>−</mo><msup><mn>2</mn><mn>36</mn></msup></mrow><annotation encoding="application/x-tex">2^{21}-2^{36}</annotation></semantics></math></td>
+<td>15-50</td>
+</tr>
+<tr class="odd">
+<td>ОЗУ на одном кристалле с процессором при попадании в TLB (по
+случайным адресам)</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>14</mn></msup><mo>−</mo><msup><mn>2</mn><mn>24</mn></msup></mrow><annotation encoding="application/x-tex">2^{14}-2^{24}</annotation></semantics></math></td>
+<td>10-75</td>
+</tr>
+<tr class="even">
+<td>Внешнее ОЗУ при попадании в TLB (по случайным адресам)</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>20</mn></msup><mo>−</mo><msup><mn>2</mn><mn>40</mn></msup></mrow><annotation encoding="application/x-tex">2^{20}-2^{40}</annotation></semantics></math></td>
+<td>200-400</td>
+</tr>
+<tr class="odd">
+<td>Внешнее ОЗУ при промахе в TLB (по случайным адресам)</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>20</mn></msup><mo>−</mo><msup><mn>2</mn><mn>40</mn></msup></mrow><annotation encoding="application/x-tex">2^{20}-2^{40}</annotation></semantics></math></td>
+<td>2000-2500</td>
+</tr>
+<tr class="even">
+<td>Внешнее ОЗУ при выгруженной во внешний Flash диск странице</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>30</mn></msup><mo>−</mo><msup><mn>2</mn><mn>42</mn></msup></mrow><annotation encoding="application/x-tex">2^{30}-2^{42}</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>10</mn><mn>5</mn></msup><mo>−</mo><msup><mn>10</mn><mn>6</mn></msup></mrow><annotation encoding="application/x-tex">10^5-10^6</annotation></semantics></math></td>
+</tr>
+<tr class="odd">
+<td>Внешнее ОЗУ при выгруженной во внешний жёсткий диск странице</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>30</mn></msup><mo>−</mo><msup><mn>2</mn><mn>50</mn></msup></mrow><annotation encoding="application/x-tex">2^{30}-2^{50}</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>10</mn><mn>6</mn></msup><mo>−</mo><msup><mn>10</mn><mn>8</mn></msup></mrow><annotation encoding="application/x-tex">10^6-10^8</annotation></semantics></math></td>
+</tr>
+</tbody>
+</table>
+<h4 id="обощённая-схема-адресного-зу">Обощённая схема адресного ЗУ</h4>
+<p><img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250306145003.png"
+alt="Pasted image 20250306145003.png" /></p>
+<h4 id="обощённая-схема-ассоциативного-зу">Обощённая схема
+ассоциативного ЗУ</h4>
+<p>Ассоциативная памяти - по сути память поиска - не ебём где, но знаем
+характеристики. Так что мы даём ей характеристики а дальше она пусть
+ебётся как хочет<br />
+В запоминающем массиве по сравнению с рисунком выше на один бит в длину
+больше. Этот последний бит указывает, занята ли строка (0 - не
+занято)<br />
+<img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250306145732.png"
+alt="Pasted image 20250306145732.png" /></p>
+<h4 id="обощённая-схема-последовательного-зу">Обощённая схема
+последовательного ЗУ</h4>
+<p><strong>Стек (LIFO)</strong><br />
+Счётчик адреса - по сути указатель стека. И т.к. технически стек можно
+реализовать на LFSR (см семинар 2), адреса не обязательно в прямом
+порядке<br />
+<img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250306151530.png"
+alt="Pasted image 20250306151530.png" /><br />
+<strong>Буфер (FIFO)</strong><br />
+<img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250306152051.png"
+alt="Pasted image 20250306152051.png" /></p>

@@ -3,24 +3,118 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  transition: background-color 0.3s, color 0.3s;
+  scrollbar-gutter: stable;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-montserrat: var(--font-montserrat);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #202020;
     --foreground: #ededed;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@media (prefers-color-scheme: light) {
+  :root {
+    --background: #ededed;
+    --foreground: #202020;
+  }
 }
+
+body {
+  font-family: --font-montserrat, sans-serif;
+
+}
+
+.dark {
+  background-color: #202020;
+  color: #ededed;
+  --background: #202020;
+  --foreground: #ededed;
+}
+
+.light {
+  background-color: #ededed;
+  color: #202020;
+  --background: #ededed;
+  --foreground: #202020;
+}
+
+.collapsible .content {
+  background-color: var(--background);
+  transition: background-color 0.3s, color 0.3s;
+}
+.collapsible .header {
+  background-color: var(--background);
+}
+
+.content {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+a {
+  color: #287cff
+}
+
+span {
+  flex: 1;
+  overflow: hidden;
+}
+
+section > * {
+  padding: 0;
+  margin: 0;
+}
+
+button {
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.hrefbutton {
+  cursor: pointer;
+  position: relative;
+  color: #6e98fa;
+  border: 2px solid #6e98fa;
+  border-radius: 15px;
+  background-color: transparent;
+  font-weight: 300;
+  font-size: 12px;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+  overflow: hidden;
+}
+
+.hrefbutton::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 60px;
+  height: 60px;
+  border-radius: inherit;
+  scale: 0;
+  z-index: -1;
+  background-color: #6e98fa;
+  transition: all 0.6s cubic-bezier(0.23, 1, 0.320, 1);
+}
+
+.hrefbutton:hover::before {
+  scale: 3;
+}
+
+.hrefbutton:hover {
+  color: var(--background);
+  scale: 1.1;
+  box-shadow: 0 0px 20px rgba(92, 138, 245, 0.4);
+}
+
+.hrefbutton:active {
+  scale: 1;
+}
+

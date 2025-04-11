@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8"></meta>
+    <style>
+        @font-face {
+            font-family: math-font;
+            src: url(https://fred-wang.github.io/MathFonts/TeXGyreSchola/texgyreschola-math.woff2);
+        }
+        math {
+            font-family: math-font;
+        }
+        body{
+            font-family:Calibri;
+            max-width: 50em;
+            margin: auto;
+            padding: 10px;
+            background-color: white;
+        }
+        table{
+            margin: 1em 0 1em 0;
+        }
+        table,tr,th,td{
+            border: 1px solid #474747;
+            border-collapse: collapse;
+            text-align: left;
+            vertical-align: top;
+        }
+        img{
+            max-width: 100%;
+        }
+        a {
+            color: #287cff
+        }
+    </style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head><h2 id="таймер-0-мк-atmega8515">Таймер 0 МК ATmega8515</h2>
+<p><strong>8-битный</strong> таймер/счётчик<br />
+<img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250312112539.png"
+alt="Pasted image 20250312112539.png" /><br />
+<img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250312112728.png"
+alt="Pasted image 20250312112728.png" /><br />
+<img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250312112740.png"
+alt="Pasted image 20250312112740.png" /><br />
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>F</mi><mrow><mi>c</mi><mi>n</mi><mi>t</mi></mrow></msub><mo>=</mo><mfrac displaystyle="true"><msub><mi>F</mi><mrow><mi>c</mi><mi>n</mi><mi>t</mi></mrow></msub><mi>K</mi></mfrac><mo>=</mo><mfrac displaystyle="true"><mn>1</mn><msub><mi>T</mi><mrow><mi>c</mi><mi>n</mi><mi>t</mi></mrow></msub></mfrac></mrow><annotation encoding="application/x-tex">F_{cnt}=\dfrac{F_{cnt}}{K}=\dfrac{1}{T_{cnt}}</annotation></semantics></math><br />
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>N</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><mo>−</mo><msub><mi>N</mi><mn>0</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><msub><mi>T</mi><mrow><mi>c</mi><mi>n</mi><mi>t</mi></mrow></msub><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><msup><mn>2</mn><mi>n</mi></msup><mo>−</mo><msub><mi>N</mi><mn>0</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mfrac displaystyle="true"><mi>K</mi><msub><mi>F</mi><mrow><mi>c</mi><mi>k</mi></mrow></msub></mfrac></mrow><annotation encoding="application/x-tex">t=(N_{max}-N_0)T_{cnt}=(2^n-N_0)\dfrac{K}{F_{ck}}</annotation></semantics></math>
+- Отсчёт заданного интервала<br />
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>N</mi><mn>0</mn></msub><mo>=</mo><msup><mn>2</mn><mi>n</mi></msup><mo>−</mo><mfrac displaystyle="true"><mrow><mi>t</mi><msub><mi>F</mi><mrow><mi>c</mi><mi>k</mi></mrow></msub></mrow><mi>K</mi></mfrac></mrow><annotation encoding="application/x-tex">N_0=2^n-\dfrac{tF_{ck}}{K}</annotation></semantics></math>
+- Начальное значение</p>
+<h4 id="регистр-управления-таймера-tccr0">Регистр управления таймера
+TCCR0</h4>
+<p><img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250312113144.png"
+alt="Pasted image 20250312113144.png" /><br />
+<strong>Режим счёта</strong>:<br />
+<img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250312113206.png"
+alt="Pasted image 20250312113206.png" /><br />
+<strong>Источник тактового сигнала</strong>:</p>
+<table>
+<thead>
+<tr class="header">
+<th>CS02</th>
+<th>CS01</th>
+<th>CS00</th>
+<th>Desc.</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>No clock source (Timer/counter stopped)</td>
+</tr>
+<tr class="even">
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mi>l</mi><msub><mi>k</mi><mrow><mi>I</mi><mi>/</mi><mi>O</mi></mrow></msub><mi>/</mi></mrow><annotation encoding="application/x-tex">clk_{I/O}/</annotation></semantics></math>
+(No prescaling)</td>
+</tr>
+<tr class="odd">
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mi>l</mi><msub><mi>k</mi><mrow><mi>I</mi><mi>/</mi><mi>O</mi></mrow></msub><mi>/</mi><mn>8</mn></mrow><annotation encoding="application/x-tex">clk_{I/O}/8</annotation></semantics></math>
+(From prescaler)</td>
+</tr>
+<tr class="even">
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mi>l</mi><msub><mi>k</mi><mrow><mi>I</mi><mi>/</mi><mi>O</mi></mrow></msub><mi>/</mi><mn>64</mn></mrow><annotation encoding="application/x-tex">clk_{I/O}/64</annotation></semantics></math>
+(From prescaler)</td>
+</tr>
+<tr class="odd">
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mi>l</mi><msub><mi>k</mi><mrow><mi>I</mi><mi>/</mi><mi>O</mi></mrow></msub><mi>/</mi><mn>256</mn></mrow><annotation encoding="application/x-tex">clk_{I/O}/256</annotation></semantics></math>
+(From prescaler)</td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mi>l</mi><msub><mi>k</mi><mrow><mi>I</mi><mi>/</mi><mi>O</mi></mrow></msub><mi>/</mi><mn>1024</mn></mrow><annotation encoding="application/x-tex">clk_{I/O}/1024</annotation></semantics></math>
+(From prescaler)</td>
+</tr>
+<tr class="odd">
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>External clock source on T0 pin. Clock on <strong>falling</strong>
+edge //negedge essentially</td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>External clock source on T0 pin. Clock on <strong>rising</strong>
+edge //posedge essentially</td>
+</tr>
+</tbody>
+</table>
+<h4 id="функция-сравнения-при-нормальном-режиме-счёта">Функция сравнения
+при нормальном режиме счёта</h4>
+<p><img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250313122021.png"
+alt="Pasted image 20250313122021.png" /></p>
+<table>
+<thead>
+<tr class="header">
+<th>COM01</th>
+<th>COM00</th>
+<th>Desc.</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0</td>
+<td>0</td>
+<td>Normal port operation, OC0 disconnected</td>
+</tr>
+<tr class="even">
+<td><strong>0</strong></td>
+<td><strong>1</strong></td>
+<td><strong>Toggle OC0 on Compare Match</strong></td>
+</tr>
+<tr class="odd">
+<td>1</td>
+<td>0</td>
+<td>Clear OC0 on Compare Match</td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td>1</td>
+<td>Set OC0 on Compare Match</td>
+</tr>
+</tbody>
+</table>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>2</mn><msub><mi>t</mi><mi>и</mi></msub><mo>=</mo><mn>2</mn><mo>*</mo><msup><mn>2</mn><mi>n</mi></msup><mfrac displaystyle="true"><mi>K</mi><msub><mi>F</mi><mrow><mi>c</mi><mi>k</mi></mrow></msub></mfrac></mrow><annotation encoding="application/x-tex">T=2t_и=2*2^n\dfrac{K}{F_{ck}}</annotation></semantics></math></p>
+<h4
+id="режим-счёта-сброс-при-совпадении-clear-timer-on-compare-match">Режим
+счёта "сброс при совпадении" (Clear Timer on Compare Match)</h4>
+<p><img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250313123854.png"
+alt="Pasted image 20250313123854.png" /><br />
+<img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250313122556.png"
+alt="Pasted image 20250313122556.png" /><br />
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>2</mn><msub><mi>t</mi><mi>и</mi></msub><mo>=</mo><mn>2</mn><mo>*</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>O</mi><mi>C</mi><mi>R</mi><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mfrac displaystyle="true"><mi>K</mi><msub><mi>F</mi><mrow><mi>c</mi><mi>k</mi></mrow></msub></mfrac></mrow><annotation encoding="application/x-tex">T=2t_и=2*(OCRn+1)\dfrac{K}{F_{ck}}</annotation></semantics></math></p>
+<h4 id="шим-сигналы-широтно-импульсная-модуляция">ШИМ-сигналы
+(Широтно-Импульсная Модуляция)</h4>
+<p>... - aka Pulse-Width Modulation (PWM) - представление аналогового
+сигнала через цифровой с задаваемой шириной импульсной. В частном
+случае: периодическим сигналом с заданным коэффициентом
+заполнения.<br />
+Используется для управления мощностью нагрузок: яркость лампы, скорость
+вращения двигателя и т.д.<br />
+<img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250313123025.png"
+alt="Pasted image 20250313123025.png" /><br />
+Коэффициент заполнения
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mfrac displaystyle="true"><msub><mi>t</mi><mi>и</mi></msub><mi>T</mi></mfrac></mrow><annotation encoding="application/x-tex">=\dfrac{t_и}{T}</annotation></semantics></math><br />
+Скважность
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mfrac displaystyle="true"><mi>T</mi><msub><mi>t</mi><mi>и</mi></msub></mfrac></mrow><annotation encoding="application/x-tex">=\dfrac{T}{t_и}</annotation></semantics></math></p>
+<h4 id="режим-счёта-шим-phase-correct-pwm">Режим счёта "ШИМ" (Phase
+Correct PWM)</h4>
+<p>Позваоляет получать сигналы с заданной скважностью<br />
+<img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250313123252.png"
+alt="Pasted image 20250313123252.png" /><br />
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>2</mn><mi>T</mi><mi>O</mi><mi>P</mi><mfrac displaystyle="true"><mi>K</mi><msub><mi>F</mi><mrow><mi>c</mi><mi>k</mi></mrow></msub></mfrac></mrow><annotation encoding="application/x-tex">T=2TOP\dfrac{K}{F_{ck}}</annotation></semantics></math><br />
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mi>и</mi></msub><mo>=</mo><mn>2</mn><mi>O</mi><mi>C</mi><mi>R</mi><mi>n</mi><mfrac displaystyle="true"><mi>K</mi><msub><mi>F</mi><mrow><mi>c</mi><mi>k</mi></mrow></msub></mfrac></mrow><annotation encoding="application/x-tex">t_и=2OCRn\dfrac{K}{F_{ck}}</annotation></semantics></math></p>
+<table>
+<thead>
+<tr class="header">
+<th>COM01</th>
+<th>COM00</th>
+<th>Desc.</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0</td>
+<td>0</td>
+<td>Normal port connection, OC0 disconnected</td>
+</tr>
+<tr class="even">
+<td>0</td>
+<td>1</td>
+<td>Reserved</td>
+</tr>
+<tr class="odd">
+<td><strong>1</strong></td>
+<td><strong>0</strong></td>
+<td><strong>Clear OC0 on Compare Match when up-counting<br>Set OC0 on
+Compare when down-counting</strong></td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td>1</td>
+<td>Set OC0 on Compare Match when up-counting<br>Clear OC0 on Compare
+Match when down-counting</td>
+</tr>
+</tbody>
+</table>
+<h2 id="таймер-1-мк-atmega8515">Таймер 1 МК ATmega8515</h2>
+<p><strong>16-битный</strong> таймер/счётчик<br />
+<img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250313123731.png"
+alt="Pasted image 20250313123731.png" /></p>
+<h4 id="особенности-работы">Особенности работы</h4>
+<p><img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250313124318.png"
+alt="Pasted image 20250313124318.png" /></p>
+<ul>
+<li>При чтении младшего байта TCNTL старший TCNTH копируется в скрытый
+регистр TEMP</li>
+<li>При записи младшего байта TCNTL одновременно копируется значение
+TEMP в старший байт TCNTH<br />
+<strong>СЛЕДОВАТЕЛЬНО</strong></li>
+<li>При записи первым записываем старший байт</li>
+<li>При чтении первым читаем младший байт</li>
+<li>Запрещаем прерывания при чтении/записи иначе пизда</li>
+</ul>
+<p>Ниже - код чтения/записи</p>
+<pre><code>; Set TCNT1 -&gt; 0x01FF
+ldi r17, 0x01
+ldi r16, 0xFF
+out TCNT1H, r17
+out TCNT1L, r16
+
+; Read TCNT1 -&gt; r17:r16
+in r16, TCNT1L
+in r17, TCNT1H</code></pre>
+<h4 id="схема-захвата">Схема захвата</h4>
+<p><img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250313125129.png"
+alt="Pasted image 20250313125129.png" /></p>
+<h4 id="режимы-счёта">Режимы счёта</h4>
+<p>Тут ебать соответствий, но в целом логично. Энивей не думаю что её
+запоминать придётся лол<br />
+<img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250313125438.png"
+alt="Pasted image 20250313125438.png" /></p>
+<h3 id="watchdog-avr-он-же-сторожевой-таймер">Watchdog AVR (он же
+сторожевой таймер)</h3>
+<p><strong>Watchdog Timer</strong> нужен для предотвращения
+зацикливаний<br />
+В общем случае когда всё нормально работает программа через команду WDR
+периодически его сбрасывает<br />
+При переполнении - сброс всего МК (ака мы зависли нахуй). В некоторых МК
+вместо сброса отсылается прерываение<br />
+Для настройки таймера юзают FUSE биты и управляющий регистр<br />
+<img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250313125808.png"
+alt="Pasted image 20250313125808.png" /><br />
+Таблица ниже - соответствие значений в WDP и количества тиков Watchdog'а
+(а соответственно и времени сброса при разных напряжениях)<br />
+<img
+src="%D0%9F%D0%B8%D0%BA%D1%87%D0%B8/%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D0%B8/Pasted%20image%2020250313125950.png"
+alt="Pasted image 20250313125950.png" /></p>
