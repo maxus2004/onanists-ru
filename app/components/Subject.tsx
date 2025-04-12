@@ -49,6 +49,7 @@ export default function Subject({subjectName}: {subjectName:string}) {
     }, [subjectName, theme]);
     const noteFilenames = data.sort((a: string, b: string): number => {
         if (a.startsWith('README')) return -1;
+        if (b.startsWith('README')) return 1;
         if (a.startsWith('Лекция') && b.startsWith('Лекция') ||
             a.startsWith('Семинар') && b.startsWith('Семинар')) {
             return (parseInt(a.split(' ')[1]) > parseInt(b.split(' ')[1]) ? 1 : -1);
