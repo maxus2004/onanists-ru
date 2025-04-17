@@ -178,4 +178,4 @@ async function isDark (imgPath: string): Promise<boolean> {
     const img = await Image.load(imgPath);
     const grayscale = img.grey();
     return grayscale.getMean()[0] < 150;
-});
+}
