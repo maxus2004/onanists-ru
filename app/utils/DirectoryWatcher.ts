@@ -53,11 +53,7 @@ async function processFile(filepath: string): Promise<void> {
     // Otherwise - not supported
     if (filepath.endsWith('.png') || filepath.endsWith('.jpg')) {
         // Dark mode conversion
-        const isDark = (async (imgPath: string): Promise<boolean> => {
-            const img = await Image.load(imgPath);
-            const grayscale = img.grey();
-            return grayscale.getMean()[0] < 150;
-        });
+
         if (ignored(filepath)) {
             console.log(`Ignoring file ${filepath.split('files/')[1]}: in ignore file, unwatching`);
             watcher.unwatch(filepath);
@@ -86,10 +82,20 @@ async function processFile(filepath: string): Promise<void> {
         let convertedDarkmode = converted_html;
         const darkmodeHtml = html_filepath.replace('.html', ' darkmode.html');
         const lightmodeHtml = html_filepath.replace('.html', ' lightmode.html');
-        const possibleImgExtensions: string[] = ['.jpg', '.jpeg', '.png']
-        possibleImgExtensions.forEach(extension => {
-            convertedDarkmode = convertedDarkmode.replaceAll(extension, '%20darkmode' + extension);
-        })
+
+        // Change pictures to darkmodded where applicable
+        const dummy: HTMLHtmlElement = document.createElement('html');
+        dummy.innerHTML = convertedDarkmode;
+        const allImages = dummy.getElementsByTagName('img');
+        for (let i: number = 0; i < allImages.length; i++) {
+            const filename = allImages[i].src.split('/')[allImages[i].src.split('/').length - 1];
+            // ^ Know it's suboptimal, dgaf
+            if (!(ignored(filepath) || await isDark(filepath))) {
+                const possibleExtensions = [];
+            }
+        }
+        convertedDarkmode = dummy.innerHTML.toString();
+
         fs.writeFileSync(lightmodeHtml, fs.readFileSync('./app/utils/headers/lightmodeHeader.txt', 'utf8') + converted_html);
         fs.writeFileSync(darkmodeHtml, fs.readFileSync('./app/utils/headers/darkmodeHeader.txt', 'utf8') + convertedDarkmode);
 
@@ -163,3 +169,9 @@ function ignored(filepath: string): boolean {
     return toIgnore.includes(filepath.split('/')[filepath.split('/').length - 1]);
     // ^ I know calling .split() twice is suboptimal, but it is easier and more dEmUrE
 }
+
+async function isDark (imgPath: string): Promise<boolean> {
+    const img = await Image.load(imgPath);
+    const grayscale = img.grey();
+    return grayscale.getMean()[0] < 150;
+});
