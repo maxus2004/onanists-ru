@@ -179,7 +179,7 @@ function ignored(filepath: string): boolean {
 }
 
 async function isDark (imgPath: string): Promise<boolean> {
-    const img = await Image.load(imgPath);
+    const img = await Image.load(decodeURIComponent(imgPath));
     const grayscale = img.grey();
     return grayscale.getMean()[0] < 150;
 }
