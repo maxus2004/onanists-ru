@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import puppeteer from 'puppeteer';
 import { Image } from 'image-js';
+import { JSDOM } from 'jsdom';
 
 const darkModeIgnorePath: string = path.join(process.cwd(), 'public/files/dark-mode-ignore.md')
 
@@ -84,19 +85,22 @@ async function processFile(filepath: string): Promise<void> {
         const lightmodeHtml = html_filepath.replace('.html', ' lightmode.html');
 
         // Change pictures to darkmodded where applicable
+        const html: string = '';
+        const dom = new JSDOM(html);
+        const document = dom.window.document;
         const dummy: HTMLHtmlElement = document.createElement('html');
         dummy.innerHTML = convertedDarkmode;
         const allImages = dummy.getElementsByTagName('img');
         for (let i: number = 0; i < allImages.length; i++) {
-            const filename = allImages[i].src.split('/')[allImages[i].src.split('/').length - 1];
             // ^ Know it's suboptimal, dgaf
+            let filepath = allImages[i].src;
             if (!(ignored(filepath) || await isDark(filepath))) {
                 const possibleExtensions = ['.png', '.jpg', '.gif'];
                 possibleExtensions.forEach(extension => {
                     filepath = filepath.replace(extension, '%20darkmode' + extension);
                 });
-                allImages[i].src = filepath;
             }
+            allImages[i].src = filepath;
         }
         convertedDarkmode = dummy.innerHTML.toString();
 
