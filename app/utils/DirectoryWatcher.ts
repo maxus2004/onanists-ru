@@ -145,9 +145,9 @@ async function processFile(filepath: string): Promise<void> {
                 console.log(`Encountered an error while converting to PDF - retrying: `, error);
             }
         } while (!convertedToPdf);
-    } else if (filepath.endsWith('.html') || filepath.endsWith('.pdf')) {
+    } else if (filepath.endsWith('.html') || filepath.endsWith('.pdf') || filepath.endsWith('.gif')) {
         // Found something already converted - skip
-        console.log('.html or .pdf file detected - unwatching');
+        console.log('.html or .pdf of .gif file detected - unwatching');
         watcher.unwatch(filepath);
     } else {
         // Unsupported file - delete for disk space sake
