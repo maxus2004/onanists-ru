@@ -93,7 +93,7 @@ async function processFile(filepath: string): Promise<void> {
         const allImages = dummy.getElementsByTagName('img');
         for (let i: number = 0; i < allImages.length; i++) {
             // ^ Know it's suboptimal, dgaf
-            let imgPath = allImages[i].src;
+            let imgPath = filepath.split('/').slice(0, -1).join('/') + '/' + allImages[i].src;
             if (!(ignored(imgPath) || await isDark(imgPath))) {
                 const possibleExtensions = ['.png', '.jpg', '.gif'];
                 possibleExtensions.forEach(extension => {
