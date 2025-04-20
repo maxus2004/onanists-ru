@@ -95,12 +95,9 @@ async function processFile(filepath: string): Promise<void> {
             // ^ Know it's suboptimal, dgaf
             let imgPath = filepath.split('/').slice(0, -1).join('/') + '/' + allImages[i].src;
             if (!(ignored(imgPath) || await isDark(imgPath))) {
-                const possibleExtensions = ['.png', '.jpg', '.gif'];
-                possibleExtensions.forEach(extension => {
-                    imgPath = imgPath.replace(extension, '%20darkmode' + extension);
-                });
+                const dotIndex = allImages[i].src.lastIndexOf('.');
+                allImages[i].src = allImages[i].src.slice(0,dotIndex) + ' darkmode' + allImages[i].src.slice(dotIndex);
             }
-            allImages[i].src = imgPath;
         }
         convertedDarkmode = dummy.innerHTML.toString();
 
