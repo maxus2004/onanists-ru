@@ -93,7 +93,7 @@ async function processFile(filepath: string): Promise<void> {
         const allImages = dummy.getElementsByTagName('img');
         for (let i: number = 0; i < allImages.length; i++) {
             // ^ Know it's suboptimal, dgaf
-            let imgPath = filepath.split('/').slice(0, -1).join('/') + '/' + allImages[i].src;
+            let imgPath = filepath.split('/').slice(0, -1).join('/') + '/' + decodeURIComponent(allImages[i].src);
             if (!(ignored(imgPath) || await isDark(imgPath))) {
                 const dotIndex = allImages[i].src.lastIndexOf('.');
                 allImages[i].src = allImages[i].src.slice(0,dotIndex) + ' darkmode' + allImages[i].src.slice(dotIndex);
@@ -171,12 +171,11 @@ async function processFile(filepath: string): Promise<void> {
 
 function ignored(filepath: string): boolean {
     const toIgnore = fs.readFileSync(darkModeIgnorePath, 'utf-8');
-    return toIgnore.includes(filepath.split('/')[filepath.split('/').length - 1]);
-    // ^ I know calling .split() twice is suboptimal, but it is easier and more dEmUrE
+    return toIgnore.includes(filepath.split('/').at(-1));
 }
 
 async function isDark (imgPath: string): Promise<boolean> {
-    const img = await Image.load(decodeURIComponent(imgPath));
+    const img = await Image.load(imgPath);
     const grayscale = img.grey();
     return grayscale.getMean()[0] < 150;
 }
