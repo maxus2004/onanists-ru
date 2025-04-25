@@ -5,10 +5,12 @@ import path from 'path';
 import puppeteer from 'puppeteer';
 import { Image } from 'image-js';
 import { JSDOM } from 'jsdom';
+import { createHash } from 'crypto';
 
 const darkModeIgnorePath: string = path.join(process.cwd(), 'public/files/dark-mode-ignore.md')
-
 const rootDir = process.cwd() + '/public/files';
+const retryLimit = 5;
+const fileHashes = new Map<string, string>();
 
 const watcher = chokidar.watch(rootDir, {
     persistent: true,
@@ -25,11 +27,18 @@ let threadTaken = false;
 
 watcher
     .on('add', (filepath) => {
+        fileHashes.set(filepath, calculateFileHash(filepath)); // New file - add hash
         console.log(`Added file: ${filepath.split('files/')[1]}`);
         queue.push(filepath);
         processNext();
     })
     .on('change', (filepath) => {
+        // Check if we actually need to change the file
+        const fileHash = calculateFileHash(filepath);
+        if (fileHashes.has(fileHash) && fileHashes.get(fileHash) === fileHash) {
+            return;
+        }
+        fileHashes.set(filepath, fileHash); // Update the hash
         console.log(`Changed file: ${filepath.split('files/')[1]}`);
         queue.push(filepath);
         processNext();
@@ -50,9 +59,15 @@ async function processNext(): Promise<void> {
 async function processFile(filepath: string): Promise<void> {
     // 1 - Check filetype
     // 2 - if .md - html + pdf both themes
-    // 3 - if .png or .jpg - convert to darkmode
+    // 3 - if .png .jpg - convert to darkmode
+    // 4 - .gif - do nothing
+    // 5 - Contains 'darkmode' or 'lightmode' - unwatch
     // Otherwise - not supported
-    if (filepath.endsWith('.png') || filepath.endsWith('.jpg')) {
+
+    if (filepath.includes('lightmode') || filepath.includes('darkmode')) {
+        console.log('Darkmode/lightmode file detected - unwatching');
+        watcher.unwatch(filepath);
+    } else if (filepath.endsWith('.png') || filepath.endsWith('.jpg')) {
         // Dark mode conversion
 
         if (ignored(filepath)) {
@@ -93,7 +108,7 @@ async function processFile(filepath: string): Promise<void> {
         const allImages = dummy.getElementsByTagName('img');
         for (let i: number = 0; i < allImages.length; i++) {
             // ^ Know it's suboptimal, dgaf
-            let imgPath = filepath.split('/').slice(0, -1).join('/') + '/' + decodeURIComponent(allImages[i].src);
+            const imgPath = filepath.split('/').slice(0, -1).join('/') + '/' + decodeURIComponent(allImages[i].src);
             if (!(ignored(imgPath) || await isDark(imgPath))) {
                 const dotIndex = allImages[i].src.lastIndexOf('.');
                 allImages[i].src = allImages[i].src.slice(0,dotIndex) + ' darkmode' + allImages[i].src.slice(dotIndex);
@@ -108,54 +123,53 @@ async function processFile(filepath: string): Promise<void> {
         console.log(`Converting ${filepath.split('files/')[1]} to pdf`);
         const darkmodePdf = darkmodeHtml.replace('.html', '.pdf');
         const lightmodePdf = lightmodeHtml.replace('.html', '.pdf');
-        const lightmodePdfConvert = (async () => {
-                const browser = await puppeteer.launch();
-                const page = await browser.newPage();
-                await page.goto("file://" + lightmodeHtml);
-                const height = await page.evaluate(() => document.documentElement.offsetHeight);
-                await page.pdf({
-                    path: lightmodePdf,
-                    margin: {"top": "0cm", "right": "0cm", "bottom": "0cm", "left": "0cm"},
-                    printBackground: true,
-                    width: "210mm",
-                    height: height + 'px'
-                });
-                await browser.close();
-            }
-        )();
-        const darkmodePdfConvert = (async () => {
-                const browser = await puppeteer.launch();
-                const page = await browser.newPage();
-                let loaded: boolean = false
-                do {
-                    try {
-                        await page.goto("file://" + darkmodeHtml);
-                        loaded = true;
-                    } catch (err) {
-                        console.log("Encountered an error - retrying: ", err)
-                    }
-                } while (!loaded);
-                const height = await page.evaluate(() => document.documentElement.offsetHeight);
-                await page.pdf({
-                    path: darkmodePdf,
-                    margin: {"top": "0cm", "right": "0cm", "bottom": "0cm", "left": "0cm"},
-                    printBackground: true,
-                    width: "210mm",
-                    height: height + 'px'
-                });
-                await browser.close();
-            }
-        )();
         let convertedToPdf = false
-        do {                               // Any errors - we retry (for now no limit, will set later)
-            try {                          // TODO: set retry limit
-                await lightmodePdfConvert;
-                await darkmodePdfConvert;
+        let retryCount = 0;
+        const browser = await puppeteer.launch();
+        do {                                        // Any errors - we retry up to <retryLimit> times
+            try {
+                await (async () => {  // Conversion for lightmode
+                        const browser = await puppeteer.launch();
+                        const page = await browser.newPage();
+                        await page.goto("file://" + lightmodeHtml);
+                        const height = await page.evaluate(() => document.documentElement.offsetHeight);
+                        await page.pdf({
+                            path: lightmodePdf,
+                            margin: {"top": "0cm", "right": "0cm", "bottom": "0cm", "left": "0cm"},
+                            printBackground: true,
+                            width: "210mm",
+                            height: height + 'px'
+                        });
+                    }
+                )();
+                await (async () => {  // Conversion for darkmode
+                        const page = await browser.newPage();
+                        let loaded: boolean = false
+                        do {
+                            try {
+                                await page.goto("file://" + darkmodeHtml);
+                                loaded = true;
+                            } catch (err) {
+                                console.log("Encountered an error - retrying: ", err)
+                            }
+                        } while (!loaded);
+                        const height = await page.evaluate(() => document.documentElement.offsetHeight);
+                        await page.pdf({
+                            path: darkmodePdf,
+                            margin: {"top": "0cm", "right": "0cm", "bottom": "0cm", "left": "0cm"},
+                            printBackground: true,
+                            width: "210mm",
+                            height: height + 'px'
+                        });
+                        await browser.close();
+                    }
+                )();
                 convertedToPdf = true;
             } catch (error) {
                 console.log(`Encountered an error while converting to PDF - retrying: `, error);
+                ++retryCount;
             }
-        } while (!convertedToPdf);
+        } while (!convertedToPdf && retryCount < retryLimit);
     } else if (filepath.endsWith('.html') || filepath.endsWith('.pdf') || filepath.endsWith('.gif')) {
         // Found something already converted - skip
         console.log('.html or .pdf of .gif file detected - unwatching');
@@ -171,11 +185,16 @@ async function processFile(filepath: string): Promise<void> {
 
 function ignored(filepath: string): boolean {
     const toIgnore = fs.readFileSync(darkModeIgnorePath, 'utf-8');
-    return toIgnore.includes(filepath.split('/').at(-1));
+    return toIgnore.includes(<string>filepath.split('/').at(-1));
 }
 
 async function isDark (imgPath: string): Promise<boolean> {
     const img = await Image.load(imgPath);
     const grayscale = img.grey();
     return grayscale.getMean()[0] < 150;
+}
+
+function calculateFileHash(filepath: string): string {
+    const data = fs.readFileSync(filepath, 'utf8');
+    return createHash('md5').update(data).digest('hex');
 }
