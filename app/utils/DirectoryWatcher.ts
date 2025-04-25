@@ -27,18 +27,11 @@ let threadTaken = false;
 
 watcher
     .on('add', (filepath) => {
-        fileHashes.set(filepath, calculateFileHash(filepath)); // New file - add hash
         console.log(`Added file: ${filepath.split('files/')[1]}`);
         queue.push(filepath);
         processNext();
     })
     .on('change', (filepath) => {
-        // Check if we actually need to change the file
-        const fileHash = calculateFileHash(filepath);
-        if (fileHashes.has(fileHash) && fileHashes.get(fileHash) === fileHash) {
-            return;
-        }
-        fileHashes.set(filepath, fileHash); // Update the hash
         console.log(`Changed file: ${filepath.split('files/')[1]}`);
         queue.push(filepath);
         processNext();
@@ -50,8 +43,15 @@ async function processNext(): Promise<void> {
     }
     threadTaken = true;
     const filepath = queue.shift();
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    filepath != undefined ? await processFile(filepath) : await new Promise(resolve => setTimeout(resolve, 100));
+    if (filepath != undefined){
+        const hash: string = calculateFileHash(filepath);
+        if (fileHashes.has(filepath) && fileHashes.get(filepath) === hash) {
+            return;
+        }
+        await processFile(filepath);
+    } else {
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
     threadTaken = false;
     processNext();
 }
