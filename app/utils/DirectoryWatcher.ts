@@ -10,9 +10,9 @@ import { createHash } from 'crypto';
 const darkModeIgnorePath: string = path.join(process.cwd(), 'public/files/dark-mode-ignore.md')
 const rootDir = process.cwd() + '/public/files';
 const retryLimit = 5;
-const fileHashes = new Map<string, string>();
-const browser = await puppeteer.launch();
-const page = await browser.newPage();
+const fileHashes = new Map<string, string>();           // Map for storing files' hashes
+const browser = await puppeteer.launch();      // Setup for
+const page = await browser.newPage();             // PDF conversion
 fs.writeFileSync('hash.log', '');    // Wipe the hash log file
 fs.writeFileSync('filedir.log', ''); // Wipe the directory wacther log file
 
@@ -26,46 +26,67 @@ const watcher = chokidar.watch(rootDir, {
 });
 console.log(`Watching directory: ${rootDir}`);
 
-const queue: string[] = [];
-let threadTaken = false;
+const fileQueue: string[] = [];
+const messageQueue: string[] = [];
+let fileThreadTaken = false;
+let messageThreadTaken = false;
 
 watcher
     .on('add', (filepath) => {
         console.log(`Added file: ${filepath.split('files/')[1]}`);
-        queue.push(filepath);
-        processNext();
+        fileQueue.push(filepath);
+        processNextFile();
     })
     .on('change', (filepath) => {
         console.log(`Changed file: ${filepath.split('files/')[1]}`);
-        queue.push(filepath);
-        processNext();
+        fileQueue.push(filepath);
+        processNextFile();
     });
 
-async function processNext(): Promise<void> {
-    if (threadTaken || queue.length === 0) {
+async function processNextMessage() {
+    if (messageThreadTaken || messageQueue.length === 0) {
         return;
     }
-    threadTaken = true;
-    const filepath = queue.shift();
+    messageThreadTaken = true;
+    const message = messageQueue.shift();
+    if (message) {
+        console.log(message);
+        fs.appendFileSync(message.toLowerCase().includes('hash') ? 'hash.log' : 'filedir.log',message + '\n');
+    } else {
+        messageThreadTaken = false;
+        return;
+    }
+    messageThreadTaken = false;
+    await processNextMessage();
+}
+
+async function processNextFile(): Promise<void> {
+    if (fileThreadTaken || fileQueue.length === 0) {
+        return;
+    }
+    fileThreadTaken = true;
+    const filepath = fileQueue.shift();
     if (filepath){
         // Check the hash & process
         const hash: string = calculateFileHash(filepath);
         if (fileHashes.has(filepath) && fileHashes.get(filepath) == hash) {
-            console.log("File hashes match - ignoring file " + filepath);
-            fs.appendFileSync('hash.log', `Hash match for ${filepath}\n`)
-            threadTaken = false;
+            messageQueue.push("File hashes match - ignoring file " + filepath.split('files/')[1]);
+            await processNextMessage();
+            fileThreadTaken = false;
             return;
         }
         fileHashes.set(filepath, hash);
-        fs.appendFileSync('hash.log', `Hash set for ${filepath}\n`);
+        messageQueue.push(`Hash set for ${filepath.split('files/')[1]}`);
+        await processNextMessage();
         await processFile(filepath);
     } else {
-        console.log("Bad file path");
-        threadTaken = false;
+        messageQueue.push("Bad file path");
+        await processNextMessage();
+        fileThreadTaken = false;
         return;
     }
-    threadTaken = false;
-    await processNext();
+    fileThreadTaken = false;
+    await processNextFile();
 }
 
 async function processFile(filepath: string): Promise<void> {
@@ -77,23 +98,23 @@ async function processFile(filepath: string): Promise<void> {
     // Otherwise - not supported
 
     if (filepath.includes('lightmode') || filepath.includes('darkmode')) {
-        console.log('Darkmode/lightmode file detected - unwatching');
-        fs.appendFileSync('filedir.log', 'Darkmode/lightmode file detected - unwatching\n');
+        messageQueue.push('Darkmode/lightmode file detected - unwatching');
+        await processNextMessage();
         watcher.unwatch(filepath);
     } else if (filepath.endsWith('.png') || filepath.endsWith('.jpg')) {
         // Dark mode conversion
 
         if (ignored(filepath)) {
-            console.log(`Ignoring file ${filepath.split('files/')[1]}: in ignore file, unwatching`);
-            fs.appendFileSync('filedir.log', `Ignoring file ${filepath.split('files/')[1]}: in ignore file, unwatching\n`);
+            messageQueue.push(`Ignoring file ${filepath.split('files/')[1]}: in ignore file, unwatching`);
+            await processNextMessage();
             watcher.unwatch(filepath);
         } else if (await isDark(filepath)) {
-            console.log(`Ignoring file ${filepath.split('files/')[1]}: already dark, unwatching`);
-            fs.appendFileSync('filedir.log', `Ignoring file ${filepath.split('files/')[1]}: already dark, unwatching\n`);
+            messageQueue.push(`Ignoring file ${filepath.split('files/')[1]}: already dark, unwatching`);
+            await processNextMessage();
             watcher.unwatch(filepath);
         } else {
-            console.log(`Converting file ${filepath.split('files/')[1]}`);
-            fs.appendFileSync('filedir.log', `Converting file ${filepath.split('files/')[1]}\n`);
+            messageQueue.push(`Converting file ${filepath.split('files/')[1]}`);
+            await processNextMessage();
             const darkmodePath=
                 filepath.endsWith('.jpg')
                     ? filepath.replace('.jpg', ' darkmode.jpg')
@@ -105,8 +126,8 @@ async function processFile(filepath: string): Promise<void> {
 
         // HTML conversion
         if (filepath.endsWith('dark-mode-ignore.md')) { return; }
-        console.log(`Converting ${filepath.split('files/')[1]} to html`);
-        fs.appendFileSync('filedir.log', `Converting ${filepath.split('files/')[1]} to html\n`);
+        messageQueue.push(`Converting ${filepath.split('files/')[1]} to html`);
+        await processNextMessage();
         const html_filepath: string = filepath.replace('.md', '.html');
         execSync(`pandoc "${filepath}" -o "${html_filepath}" --from=gfm+hard_line_breaks --mathml`);
         let converted_html: string = fs.readFileSync(html_filepath, 'utf8');
@@ -137,8 +158,8 @@ async function processFile(filepath: string): Promise<void> {
         fs.writeFileSync(darkmodeHtml, fs.readFileSync('./app/utils/headers/darkmodeHeader.txt', 'utf8') + convertedDarkmode);
 
         // PDF conversion
-        console.log(`Converting ${filepath.split('files/')[1]} to pdf`);
-        fs.appendFileSync('filedir.log', `Converting ${filepath.split('files/')[1]} to pdf\n`);
+        messageQueue.push(`Converting ${filepath.split('files/')[1]} to pdf`);
+        await processNextMessage();
         const darkmodePdf = darkmodeHtml.replace('.html', '.pdf');
         const lightmodePdf = lightmodeHtml.replace('.html', '.pdf');
         let convertedToPdf = false
@@ -172,24 +193,24 @@ async function processFile(filepath: string): Promise<void> {
                 convertedToPdf = true;
             } catch (error) {
                 console.log(`Encountered an error while converting to PDF - retrying: `, error);
-                fs.appendFileSync('filedir.log', `Encountered an error while converting to PDF - retrying: ${error}\n`);
+                fs.appendFileSync('filedir.log', `Encountered an error while converting to PDF - retrying: ${error}`);
                 ++retryCount;
             }
         } while (!convertedToPdf && retryCount < retryLimit);
     } else if (filepath.endsWith('.html') || filepath.endsWith('.pdf') || filepath.endsWith('.gif')) {
         // Found something already converted - skip
         console.log('.html or .pdf of .gif file detected - unwatching');
-        fs.appendFileSync('filedir.log', '.html or .pdf of .gif file detected - unwatching\n');
+        fs.appendFileSync('filedir.log', '.html or .pdf of .gif file detected - unwatching');
         watcher.unwatch(filepath);
     } else {
         // Unsupported file - delete for disk space sake
         execSync(`rm "${filepath}"`);
-        console.log('Unsupported file extension: ', filepath.split('.')[1]);
-        fs.appendFileSync('filedir.log', 'Unsupported file extension: ' + filepath.split('.')[1] + '\n');
-        console.log('Deleted file with unsupported extension: ', filepath);
-        fs.appendFileSync('filedir.log', 'Deleted file with unsupported extension: ' + filepath + '\n');
+        messageQueue.push('Unsupported file extension: ', filepath.split('.')[1]);
+        await processNextMessage();
+        messageQueue.push('Deleted file with unsupported extension: ', filepath);
+        await processNextMessage();
     }
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise(resolve => setTimeout(resolve, 50));
 }
 
 function ignored(filepath: string): boolean {
