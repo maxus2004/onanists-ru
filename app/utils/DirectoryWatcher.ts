@@ -33,12 +33,14 @@ let messageThreadTaken = false;
 
 watcher
     .on('add', (filepath) => {
-        console.log(`Added file: ${filepath.split('files/')[1]}`);
+        messageQueue.push(`Added file: ${filepath.split('files/')[1]}`);
+        processNextMessage();
         fileQueue.push(filepath);
         processNextFile();
     })
     .on('change', (filepath) => {
-        console.log(`Changed file: ${filepath.split('files/')[1]}`);
+        messageQueue.push(`Changed file: ${filepath.split('files/')[1]}`);
+        processNextMessage();
         fileQueue.push(filepath);
         processNextFile();
     });
