@@ -46,10 +46,11 @@ async function processNext(): Promise<void> {
     }
     threadTaken = true;
     const filepath = queue.shift();
-    if (filepath != undefined){
+    if (filepath !== undefined){
         // Check the hash & process
         const hash: string = calculateFileHash(filepath);
         if (fileHashes.has(filepath) && fileHashes.get(filepath) === hash) {
+            console.log("File hashes match - ignoring file " + filepath);
             return;
         }
         fileHashes.set(filepath, hash);
