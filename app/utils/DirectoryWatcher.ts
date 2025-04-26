@@ -13,6 +13,7 @@ const retryLimit = 5;
 const fileHashes = new Map<string, string>();
 const browser = await puppeteer.launch();
 const page = await browser.newPage();
+fs.writeFileSync('hash.log', '');  // Wipe the hash log file
 
 const watcher = chokidar.watch(rootDir, {
     persistent: true,
@@ -54,7 +55,7 @@ async function processNext(): Promise<void> {
             return;
         }
         fileHashes.set(filepath, hash);
-        fs.appendFileSync('hash.log', `Hash set for ${filepath}`);
+        fs.appendFileSync('hash.log', `Hash set for ${filepath}\n`);
         await processFile(filepath);
     } else {
         console.log("Bad file path");
