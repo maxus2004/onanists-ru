@@ -11,9 +11,9 @@ const darkModeIgnorePath: string = path.join(process.cwd(), 'public/files/dark-m
 const rootDir = process.cwd() + '/public/files';
 const retryLimit = 5;
 const fileHashes = new Map<string, string>();
-// Have to supprsee no-unused-vars 'cause eslint doesn't seem to understand browser IS used :)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const browser = await puppeteer.launch();
+const page = await browser.newPage();
+
 
 const watcher = chokidar.watch(rootDir, {
     persistent: true,
@@ -130,11 +130,9 @@ async function processFile(filepath: string): Promise<void> {
         const lightmodePdf = lightmodeHtml.replace('.html', '.pdf');
         let convertedToPdf = false
         let retryCount = 0;
-        const browser = await puppeteer.launch();
         do {  // Any errors - we retry up to <retryLimit> times
             try {
                 await (async () => {  // Conversion for lightmode
-                        const page = await browser.newPage();
                         await page.goto("file://" + lightmodeHtml);
                         const height = await page.evaluate(() => document.documentElement.offsetHeight);
                         await page.pdf({
@@ -144,20 +142,10 @@ async function processFile(filepath: string): Promise<void> {
                             width: "210mm",
                             height: height + 'px'
                         });
-                        await page.close();
                     }
                 )();
                 await (async () => {  // Conversion for darkmode
-                        const page = await browser.newPage();
-                        let loaded: boolean = false
-                        do {
-                            try {
-                                await page.goto("file://" + darkmodeHtml);
-                                loaded = true;
-                            } catch (err) {
-                                console.log("Encountered an error - retrying: ", err)
-                            }
-                        } while (!loaded);
+                        await page.goto("file://" + darkmodeHtml);
                         const height = await page.evaluate(() => document.documentElement.offsetHeight);
                         await page.pdf({
                             path: darkmodePdf,
@@ -166,7 +154,6 @@ async function processFile(filepath: string): Promise<void> {
                             width: "210mm",
                             height: height + 'px'
                         });
-                        await page.close();
                     }
                 )();
                 convertedToPdf = true;
