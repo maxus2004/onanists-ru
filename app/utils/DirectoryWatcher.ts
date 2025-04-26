@@ -44,10 +44,12 @@ async function processNext(): Promise<void> {
     threadTaken = true;
     const filepath = queue.shift();
     if (filepath != undefined){
+        // Check the hash & process
         const hash: string = calculateFileHash(filepath);
         if (fileHashes.has(filepath) && fileHashes.get(filepath) === hash) {
             return;
         }
+        fileHashes.set(filepath, hash);
         await processFile(filepath);
     } else {
         await new Promise(resolve => setTimeout(resolve, 100));
