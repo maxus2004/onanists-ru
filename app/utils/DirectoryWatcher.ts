@@ -83,15 +83,15 @@ async function processFile(filepath: string): Promise<void> {
 
         if (ignored(filepath)) {
             console.log(`Ignoring file ${filepath.split('files/')[1]}: in ignore file, unwatching`);
-            fs.appendFileSync('filedir.log', `Ignoring file ${filepath.split('files/')[1]}: in ignore file, unwatching`);
+            fs.appendFileSync('filedir.log', `Ignoring file ${filepath.split('files/')[1]}: in ignore file, unwatching\n`);
             watcher.unwatch(filepath);
         } else if (await isDark(filepath)) {
             console.log(`Ignoring file ${filepath.split('files/')[1]}: already dark, unwatching`);
-            fs.appendFileSync('filedir.log', `Ignoring file ${filepath.split('files/')[1]}: already dark, unwatching`);
+            fs.appendFileSync('filedir.log', `Ignoring file ${filepath.split('files/')[1]}: already dark, unwatching\n`);
             watcher.unwatch(filepath);
         } else {
             console.log(`Converting file ${filepath.split('files/')[1]}`);
-            fs.appendFileSync('filedir.log', `Converting file ${filepath.split('files/')[1]}`);
+            fs.appendFileSync('filedir.log', `Converting file ${filepath.split('files/')[1]}\n`);
             const darkmodePath=
                 filepath.endsWith('.jpg')
                     ? filepath.replace('.jpg', ' darkmode.jpg')
@@ -104,7 +104,7 @@ async function processFile(filepath: string): Promise<void> {
         // HTML conversion
         if (filepath.endsWith('dark-mode-ignore.md')) { return; }
         console.log(`Converting ${filepath.split('files/')[1]} to html`);
-        fs.appendFileSync('filedir.log', `Converting ${filepath.split('files/')[1]} to html`);
+        fs.appendFileSync('filedir.log', `Converting ${filepath.split('files/')[1]} to html\n`);
         const html_filepath: string = filepath.replace('.md', '.html');
         execSync(`pandoc "${filepath}" -o "${html_filepath}" --from=gfm+hard_line_breaks --mathml`);
         let converted_html: string = fs.readFileSync(html_filepath, 'utf8');
@@ -136,7 +136,7 @@ async function processFile(filepath: string): Promise<void> {
 
         // PDF conversion
         console.log(`Converting ${filepath.split('files/')[1]} to pdf`);
-        fs.appendFileSync('filedir.log', `Converting ${filepath.split('files/')[1]} to pdf`);
+        fs.appendFileSync('filedir.log', `Converting ${filepath.split('files/')[1]} to pdf\n`);
         const darkmodePdf = darkmodeHtml.replace('.html', '.pdf');
         const lightmodePdf = lightmodeHtml.replace('.html', '.pdf');
         let convertedToPdf = false
@@ -170,22 +170,22 @@ async function processFile(filepath: string): Promise<void> {
                 convertedToPdf = true;
             } catch (error) {
                 console.log(`Encountered an error while converting to PDF - retrying: `, error);
-                fs.appendFileSync('filedir.log', `Encountered an error while converting to PDF - retrying: `, error);
+                fs.appendFileSync('filedir.log', `Encountered an error while converting to PDF - retrying: ${error}\n`);
                 ++retryCount;
             }
         } while (!convertedToPdf && retryCount < retryLimit);
     } else if (filepath.endsWith('.html') || filepath.endsWith('.pdf') || filepath.endsWith('.gif')) {
         // Found something already converted - skip
         console.log('.html or .pdf of .gif file detected - unwatching');
-        fs.appendFileSync('filedir.log', '.html or .pdf of .gif file detected - unwatching');
+        fs.appendFileSync('filedir.log', '.html or .pdf of .gif file detected - unwatching\n');
         watcher.unwatch(filepath);
     } else {
         // Unsupported file - delete for disk space sake
         execSync(`rm "${filepath}"`);
         console.log('Unsupported file extension: ', filepath.split('.')[1]);
-        fs.appendFileSync('filedir.log', 'Unsupported file extension: ', filepath.split('.')[1]);
+        fs.appendFileSync('filedir.log', 'Unsupported file extension: ' + filepath.split('.')[1] + '\n');
         console.log('Deleted file with unsupported extension: ', filepath);
-        fs.appendFileSync('filedir.log', 'Deleted file with unsupported extension: ', filepath);
+        fs.appendFileSync('filedir.log', 'Deleted file with unsupported extension: ' + filepath + '\n');
     }
     await new Promise(resolve => setTimeout(resolve, 100));
 }
