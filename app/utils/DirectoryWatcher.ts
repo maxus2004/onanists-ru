@@ -14,7 +14,6 @@ const fileHashes = new Map<string, string>();
 const browser = await puppeteer.launch();
 const page = await browser.newPage();
 
-
 const watcher = chokidar.watch(rootDir, {
     persistent: true,
     ignored: /^\./,
@@ -46,20 +45,23 @@ async function processNext(): Promise<void> {
     }
     threadTaken = true;
     const filepath = queue.shift();
-    if (filepath !== undefined){
+    if (filepath){
         // Check the hash & process
         const hash: string = calculateFileHash(filepath);
-        if (fileHashes.has(filepath) && fileHashes.get(filepath) === hash) {
+        if (fileHashes.has(filepath) && fileHashes.get(filepath) == hash) {
             console.log("File hashes match - ignoring file " + filepath);
+            fs.appendFileSync('hash.log', `Hash match for ${filepath}`)
             return;
         }
         fileHashes.set(filepath, hash);
+        fs.appendFileSync('hash.log', `Hash set for ${filepath}`);
         await processFile(filepath);
     } else {
-        await new Promise(resolve => setTimeout(resolve, 100));
+        console.log("Bad file path");
+        return;
     }
     threadTaken = false;
-    processNext();
+    await processNext();
 }
 
 async function processFile(filepath: string): Promise<void> {
@@ -79,7 +81,7 @@ async function processFile(filepath: string): Promise<void> {
         if (ignored(filepath)) {
             console.log(`Ignoring file ${filepath.split('files/')[1]}: in ignore file, unwatching`);
             watcher.unwatch(filepath);
-        } else if (await isDark(filepath) || filepath.includes('darkmode')) {
+        } else if (await isDark(filepath)) {
             console.log(`Ignoring file ${filepath.split('files/')[1]}: already dark, unwatching`);
             watcher.unwatch(filepath);
         } else {
