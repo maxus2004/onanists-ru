@@ -53,6 +53,7 @@ async function processNext(): Promise<void> {
         if (fileHashes.has(filepath) && fileHashes.get(filepath) == hash) {
             console.log("File hashes match - ignoring file " + filepath);
             fs.appendFileSync('hash.log', `Hash match for ${filepath}\n`)
+            threadTaken = false;
             return;
         }
         fileHashes.set(filepath, hash);
@@ -60,6 +61,7 @@ async function processNext(): Promise<void> {
         await processFile(filepath);
     } else {
         console.log("Bad file path");
+        threadTaken = false;
         return;
     }
     threadTaken = false;
@@ -76,7 +78,7 @@ async function processFile(filepath: string): Promise<void> {
 
     if (filepath.includes('lightmode') || filepath.includes('darkmode')) {
         console.log('Darkmode/lightmode file detected - unwatching');
-        fs.appendFileSync('filedir.log', 'Darkmode/lightmode file detected - unwatching');
+        fs.appendFileSync('filedir.log', 'Darkmode/lightmode file detected - unwatching\n');
         watcher.unwatch(filepath);
     } else if (filepath.endsWith('.png') || filepath.endsWith('.jpg')) {
         // Dark mode conversion
