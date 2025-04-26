@@ -14,7 +14,7 @@ const fileHashes = new Map<string, string>();           // Map for storing files
 const browser = await puppeteer.launch();      // Setup for
 const page = await browser.newPage();             // PDF conversion
 fs.writeFileSync('hash.log', '');    // Wipe the hash log file
-fs.writeFileSync('filedir.log', ''); // Wipe the directory wacther log file
+fs.writeFileSync('filedir.log', ''); // Wipe the directory watcher log file
 
 const watcher = chokidar.watch(rootDir, {
     persistent: true,
