@@ -24,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${montserrat.variable} antialiased`}>
-        <header className="flex w-full justify-end m-2">
+        <header className="flex justify-end m-2">
             <Providers><ThemeSwitcher /></Providers>
         </header>
         {children}
