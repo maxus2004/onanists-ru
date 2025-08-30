@@ -24,17 +24,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${montserrat.variable} antialiased`}>
-        <header className="flex w-full">
-            <div className="justify-end m-2">
-                <Providers><ThemeSwitcher /></Providers>
-            </div>
+        <header className="flex justify-end m-2">
+            <Providers><ThemeSwitcher /></Providers>
         </header>
         {children}
-        <footer className={"flex w-full"}>
-            <div className={"justify-start items-center m-2"}>
-                <a href={"https://archive.onanists.ru"} className={"align-middle"}>Прошлый семестр - переживи травмы ещё разочек</a>
-            </div>
-        </footer>
       </body>
     </html>
   );
