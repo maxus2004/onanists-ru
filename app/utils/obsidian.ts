@@ -1,5 +1,6 @@
 import Nano from "nano";
-import { createWriteStream } from "fs";
+import fs from "fs";
+import path from "path"
 
 export class Obsidian {
     db: Nano.DocumentScope<unknown>;
@@ -7,6 +8,14 @@ export class Obsidian {
     constructor(url: string) {
         this.db = Nano(url).db.use("obsidian");
 
+    }
+
+    ensureDirectoryExistence(filePath:string) {
+        var dirname = path.dirname(filePath);
+        if (fs.existsSync(dirname)) {
+            return true;
+        }
+        fs.mkdirSync(dirname, { recursive: true });
     }
 
     async getFile(path: string) {
@@ -34,13 +43,14 @@ export class Obsidian {
     async saveFile(db_path: string, fs_path: string) {
         const base = await this.db.get(db_path.toLowerCase())
         const children = await this.db.fetch({ keys: base["children"] });
+        this.ensureDirectoryExistence(fs_path);
         if (base["type"] == "newnote") {
-            const stream = createWriteStream(fs_path);
+            const stream = fs.createWriteStream(fs_path);
             for (const child of children.rows) {
                 stream.write(Buffer.from(child["doc"]["data"], "base64"))
             }
         } else if (base["type"] == "plain") {
-            const stream = createWriteStream(fs_path);
+            const stream = fs.createWriteStream(fs_path);
             for (const child of children.rows) {
                 stream.write(child["doc"]["data"], "utf-8");
             }
